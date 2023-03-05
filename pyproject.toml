@@ -1,0 +1,54 @@
+[build-system]
+build-backend = "hatchling.build"
+requires = [
+  "hatchling",
+]
+
+[project]
+name = "microvenv"
+version = "0.1.0"
+description = "A minimal re-implementation of Python's venv module."
+readme = "README.md"
+license = "MIT"
+maintainers = [ { name = "Brett Cannon", email = "brett@python.org" } ]
+authors = [ { name = "Brett Cannon", email = "brett@python.org" } ]
+requires-python = ">=3.7"
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: Apache Software License",
+  "Natural Language :: English",
+  "Operating System :: MacOS :: MacOS X",
+  "Operating System :: POSIX :: Linux",
+  "Operating System :: Microsoft :: Windows",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.7",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Topic :: Software Development",
+  "Topic :: Utilities",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=7.2.2",
+]
+
+[project.urls]
+source = "https://github.com/brettcannon/microvenv"
+
+[project.scripts]
+microvenv = "microvenv:main"
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = [ "-ra", "--strict-markers", "--strict-config" ]
+xfail_strict = true
+log_cli_level = "info"
+pythonpath = [ "src" ]
+testpaths = [ "tests" ]
