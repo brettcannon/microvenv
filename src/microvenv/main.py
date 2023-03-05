@@ -40,7 +40,7 @@ def create(venv_dir):
     )
 
 
-if __name__ == "__main__":
+def main():
     if len(sys.argv) > 2:
         print("Usage: microvenv.py [venv_dir='.venv']", file=sys.stderr)
         sys.exit(1)
@@ -49,4 +49,9 @@ if __name__ == "__main__":
         venv_dir = sys.argv[1]
     except IndexError:
         venv_dir = ".venv"
+
     create(pathlib.Path(venv_dir))
+
+if __name__ == "__main__":
+    main()
+

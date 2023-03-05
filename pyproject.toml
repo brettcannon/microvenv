@@ -43,7 +43,7 @@ dev = [
 source = "https://github.com/brettcannon/microvenv"
 
 [project.scripts]
-microvenv = "microvenv:main"
+microvenv = "microvenv.main:main"
 
 [tool.pytest.ini_options]
 minversion = "7.0"
