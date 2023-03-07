@@ -1,5 +1,7 @@
+import os
 import pathlib
 import sys
+import sysconfig
 
 # We don't resolve `sys.executable` on purpose.
 pyvenvcfg_template = f"""home = {pathlib.Path(sys.executable).resolve().parent}
@@ -11,21 +13,35 @@ command = {sys.executable} {__file__} {{venv_dir}}
 
 
 def create(venv_dir):
-    # XXX Unix-specific
-    # XXX Use sysconfig (if possible); https://github.com/python/cpython/blob/cb944d0be869dfb1189265467ec8a986176cc104/Lib/venv/__init__.py#L103
-    for subdir in (
-        "bin",
-        "include",
-        pathlib.PurePath(
-            "lib",
-            f"python{sys.version_info.major}.{sys.version_info.minor}",
-            "site-packages",
-        ),
-    ):
-        (venv_dir / subdir).mkdir(parents=True)
+    variables = {
+        "base": venv_dir,
+        "platbase": venv_dir,
+        "installed_base": venv_dir,
+        "installed_platbase": venv_dir,
+    }
+    try:
+        paths = [
+            pathlib.Path(sysconfig.get_path(name, "venv", variables))
+            for name in ("scripts", "include", "purelib")
+        ]
+    except KeyError:
+        paths = [
+            venv_dir / subdir
+            for subdir in (
+                "bin",
+                "include",
+                pathlib.Path(
+                    "lib",
+                    f"python{sys.version_info.major}.{sys.version_info.minor}",
+                    "site-packages",
+                ),
+            )
+        ]
+    for dir in paths:
+        dir.mkdir(parents=True)
 
-    # XXX https://github.com/python/cpython/blob/6c2e052ee07f10a6336bb4de1cef71dbe7d30ee6/Lib/venv/__init__.py#L143
-    (venv_dir / "lib64").symlink_to("lib", target_is_directory=True)
+    if sys.maxsize > 2**32 and os.name == "posix" and sys.platform != "darwin":
+        (venv_dir / "lib64").symlink_to("lib", target_is_directory=True)
 
     executable = pathlib.Path(sys.executable).resolve()
     for executable_name in (
