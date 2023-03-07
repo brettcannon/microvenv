@@ -12,7 +12,9 @@ import microvenv
 @pytest.fixture(scope="session")
 def full_venv(tmp_path_factory):
     venv_path = tmp_path_factory.mktemp("venvs") / "full_venv"
-    venv_builder = venv.EnvBuilder()
+    venv_builder = venv.EnvBuilder(
+        symlinks=True, with_pip=False, system_site_packages=False
+    )
     venv_builder.create(venv_path)
     return venv_path
 
@@ -22,6 +24,13 @@ def micro_venv(tmp_path_factory):
     venv_path = tmp_path_factory.mktemp("venvs") / "micro_venv"
     microvenv.create(venv_path)
     return venv_path
+
+
+def pyvenvcfg(venv_path):
+    config_text = (venv_path / "pyvenv.cfg").read_text(encoding="utf-8")
+    config = configparser.ConfigParser()
+    config.read_string("\n".join(["[_]", config_text]))
+    return config["_"]
 
 
 def test_structure(full_venv, micro_venv):
@@ -39,9 +48,10 @@ def test_structure(full_venv, micro_venv):
                 continue
             micro_file = micro_root / filename
             full_file = root / filename
-            assert micro_file.is_file()
+            if full_file.is_file():
+                assert micro_file.is_file()
             # Make sure that e.g. `python` is properly symlinked.
-            if full_file.is_symlink():
+            elif full_file.is_symlink():
                 assert micro_file.is_symlink()
                 assert micro_file.resolve() == full_file.resolve()
 
@@ -55,24 +65,48 @@ def test_lib64(full_venv, micro_venv):
     assert micro_lib64.resolve() == (micro_venv / "lib")
 
 
-def test_pyvenvcfg(full_venv, micro_venv):
-    full_config_text = (full_venv / "pyvenv.cfg").read_text(encoding="utf-8")
-    full_config = configparser.ConfigParser()
-    full_config.read_string("\n".join(["[_]", full_config_text]))
+@pytest.mark.parametrize(
+    "key",
+    ["include-system-site-packages", "version"],
+)
+def test_pyvenvcfg_data(full_venv, micro_venv, key):
+    full_config = pyvenvcfg(full_venv)
+    micro_config = pyvenvcfg(micro_venv)
 
-    micro_config_text = (micro_venv / "pyvenv.cfg").read_text(encoding="utf-8")
-    micro_config = configparser.ConfigParser()
-    micro_config.read_string("\n".join(["[_]", micro_config_text]))
-
-    # Use the full config as the keys to check for as we may have keys in the micro
+    # Use the full config as source of keys to check as as we may have keys in the micro
     # venv that too new for the version of Python being tested against.
-    for key in full_config["_"]:
-        if key == "command":
-            continue
-        assert key in micro_config["_"]
-        assert full_config["_"][key] == micro_config["_"][key]
+    if key in full_config:
+        assert key in micro_config
+        assert full_config[key] == micro_config[key]
 
-    assert (
-        micro_config["_"]["command"]
-        == f"{sys.executable} {microvenv.__file__} {micro_venv}"
-    )
+
+def test_pyvenvcfg_home(full_venv, micro_venv):
+    raw_path = pathlib.Path(sys.executable)
+    raw_dir = raw_path.parent
+    resolved_dir = raw_path.resolve().parent
+    dir_options = frozenset(map(os.fsdecode, (raw_dir, resolved_dir)))
+    full_config = pyvenvcfg(full_venv)
+    micro_config = pyvenvcfg(micro_venv)
+
+    assert full_config["home"] in dir_options  # Sanity check.
+    assert micro_config["home"] in dir_options
+
+
+def test_pyvenvcfg_executable(full_venv, micro_venv):
+    full_config = pyvenvcfg(full_venv)
+    if "executable" not in full_config:
+        # Introduced in Python 3.11.
+        pytest.skip("`executable` key not in pyvenv.cfg")
+
+    micro_config = pyvenvcfg(micro_venv)
+    raw_path = pathlib.Path(sys.executable)
+    resolved_path = raw_path.resolve()
+    path_options = frozenset(map(os.fsdecode, (raw_path, resolved_path)))
+
+    assert full_config["executable"] in path_options  # Sanity check.
+    assert micro_config["executable"] in path_options
+
+
+def test_pyvenvfg_command(micro_venv):
+    config = pyvenvcfg(micro_venv)
+    assert config["command"] == f"{sys.executable} {microvenv.__file__} {micro_venv}"

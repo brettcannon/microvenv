@@ -1,0 +1,31 @@
+name: "CI"
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/ci.yml"
+      - "**.py"
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}-latest
+    strategy:
+      matrix:
+        os: ["ubuntu", "macOS"]
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: wntrblm/nox@main
+      - run: nox -s test
+
+  # Set up as a separate job for a very small amount of parallelism and to
+  # avoid running multiple times under each OS like we do for testing.
+  lint:
+    runs-on: "ubuntu-latest"
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+      - run: pipx run nox -s lint

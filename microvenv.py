@@ -2,10 +2,10 @@ import pathlib
 import sys
 
 # We don't resolve `sys.executable` on purpose.
-pyvenvcfg_template = f"""home = {pathlib.Path(sys.executable).parent}
+pyvenvcfg_template = f"""home = {pathlib.Path(sys.executable).resolve().parent}
 include-system-site-packages = false
 version = {sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}
-executable = {sys.executable}
+executable = {pathlib.Path(sys.executable).resolve()}
 command = {sys.executable} {__file__} {{venv_dir}}
 """
 
