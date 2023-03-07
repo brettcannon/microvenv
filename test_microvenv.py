@@ -57,12 +57,13 @@ def test_structure(full_venv, micro_venv):
 
 
 def test_lib64(full_venv, micro_venv):
-    if not (full_venv / "lib64").exists():
-        pytest.skip("lib64 does not exist")
-
     micro_lib64 = micro_venv / "lib64"
-    assert micro_lib64.is_symlink()
-    assert micro_lib64.resolve() == (micro_venv / "lib")
+    if not (full_venv / "lib64").exists():
+        assert not micro_lib64.exists()
+    else:
+        assert micro_lib64.exists()
+        assert micro_lib64.is_symlink()
+        assert micro_lib64.resolve() == (micro_venv / "lib")
 
 
 @pytest.mark.parametrize(
