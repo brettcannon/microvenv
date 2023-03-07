@@ -6,7 +6,7 @@ import venv
 
 import pytest
 
-from microvenv.main import create
+import microvenv
 
 
 @pytest.fixture(scope="session")
@@ -22,7 +22,7 @@ def full_venv(tmp_path_factory):
 @pytest.fixture(scope="session")
 def micro_venv(tmp_path_factory):
     venv_path = tmp_path_factory.mktemp("venvs") / "micro_venv"
-    create(venv_path)
+    microvenv.create(venv_path)
     return venv_path
 
 
