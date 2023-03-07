@@ -56,7 +56,7 @@ def create(venv_dir):
     )
 
 
-def main():
+if __name__ == "__main__":
     if len(sys.argv) > 2:
         print("Usage: microvenv.py [venv_dir='.venv']", file=sys.stderr)
         sys.exit(1)
@@ -67,7 +67,3 @@ def main():
         venv_dir = ".venv"
 
     create(pathlib.Path(venv_dir))
-
-if __name__ == "__main__":
-    main()
-
