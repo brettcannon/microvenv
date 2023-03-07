@@ -1,0 +1,14 @@
+changelog:
+  exclude:
+    labels:
+      - impact-project
+  categories:
+    - title: ⚠️ Breaking Changes
+      labels:
+        - impact-breaking
+    - title: 🎉 New Features
+      labels:
+        - impact-feature
+    - title: 🪲 Bug Fixes
+      labels:
+        - impact-bug
