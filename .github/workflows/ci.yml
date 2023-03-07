@@ -15,8 +15,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - name: "Setup Python & Nox"
-        uses: daisylb/setup-nox@v2
+      - uses: wntrblm/nox@main
       - run: nox -s test
 
   # Set up as a separate job for a very small amount of parallelism and to
