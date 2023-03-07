@@ -1,3 +1,4 @@
+import os
 import pathlib
 import sys
 
@@ -24,8 +25,8 @@ def create(venv_dir):
     ):
         (venv_dir / subdir).mkdir(parents=True)
 
-    # XXX https://github.com/python/cpython/blob/6c2e052ee07f10a6336bb4de1cef71dbe7d30ee6/Lib/venv/__init__.py#L143
-    (venv_dir / "lib64").symlink_to("lib", target_is_directory=True)
+    if sys.maxsize > 2**32 and os.name == "posix" and sys.platform != "darwin":
+        (venv_dir / "lib64").symlink_to("lib", target_is_directory=True)
 
     executable = pathlib.Path(sys.executable).resolve()
     for executable_name in (
