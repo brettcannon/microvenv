@@ -37,3 +37,4 @@ lint = ["black", "ruff"]
 
 [project.urls]
 source = "https://github.com/brettcannon/microvenv"
+changelog = "https://github.com/brettcannon/microvenv/releases"
