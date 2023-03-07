@@ -12,7 +12,9 @@ import microvenv
 @pytest.fixture(scope="session")
 def full_venv(tmp_path_factory):
     venv_path = tmp_path_factory.mktemp("venvs") / "full_venv"
-    venv_builder = venv.EnvBuilder()
+    venv_builder = venv.EnvBuilder(
+        symlinks=True, with_pip=False, system_site_packages=False
+    )
     venv_builder.create(venv_path)
     return venv_path
 
@@ -64,9 +66,10 @@ def test_lib64(full_venv, micro_venv):
 
 
 @pytest.mark.parametrize(
-    "key", ["home", "include-system-site-packages", "version", "executable", "command"]
+    "key",
+    ["include-system-site-packages", "version"],
 )
-def test_pyvenvcfg(full_venv, micro_venv, key):
+def test_pyvenvcfg_data(full_venv, micro_venv, key):
     full_config = pyvenvcfg(full_venv)
     micro_config = pyvenvcfg(micro_venv)
 
@@ -77,6 +80,33 @@ def test_pyvenvcfg(full_venv, micro_venv, key):
         assert full_config[key] == micro_config[key]
 
 
-def test_command(micro_venv):
+def test_pyvenvcfg_home(full_venv, micro_venv):
+    raw_path = pathlib.Path(sys.executable)
+    raw_dir = raw_path.parent
+    resolved_dir = raw_path.resolve().parent
+    dir_options = frozenset(map(os.fsdecode, (raw_dir, resolved_dir)))
+    full_config = pyvenvcfg(full_venv)
+    micro_config = pyvenvcfg(micro_venv)
+
+    assert full_config["home"] in dir_options  # Sanity check.
+    assert micro_config["home"] in dir_options
+
+
+def test_pyvenvcfg_executable(full_venv, micro_venv):
+    full_config = pyvenvcfg(full_venv)
+    if "executable" not in full_config:
+        # Introduced in Python 3.11.
+        pytest.skip("`executable` key not in pyvenv.cfg")
+
+    micro_config = pyvenvcfg(micro_venv)
+    raw_path = pathlib.Path(sys.executable)
+    resolved_path = raw_path.resolve()
+    path_options = frozenset(map(os.fsdecode, (raw_path, resolved_path)))
+
+    assert full_config["executable"] in path_options  # Sanity check.
+    assert micro_config["executable"] in path_options
+
+
+def test_pyvenvfg_command(micro_venv):
     config = pyvenvcfg(micro_venv)
     assert config["command"] == f"{sys.executable} {microvenv.__file__} {micro_venv}"
