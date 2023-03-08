@@ -9,13 +9,19 @@ In general, though, using the [`venv` module](https://docs.python.org/3/library/
 
 ## Usage
 
-```
-<python> microvenv.py [path=".venv"]
+```console
+python microvenv.py [path=".venv"]
 ```
 
 If an argument is provided to the script, it is used as the path to create the virtual environment in. Otherwise, the virtual environment is created in `.venv`.
 
-For programmatic usage, use the [`runpy` module](https://docs.python.org/3/library/runpy.html#module-runpy) to execute the script.
+For programmatic usage, use the [`runpy` module](https://docs.python.org/3/library/runpy.html#module-runpy) to execute the script:
+
+```python
+runpy.run_path("microvenv.py", run_name="__main__")
+```
+
+The contents of `microvenv.py` is also small enough to be passed in via the `-c` flag to `python`.
 
 ## Differences compared to the [`venv` module](https://docs.python.org/3/library/venv.html#module-venv)
 
