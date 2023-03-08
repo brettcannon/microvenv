@@ -1,4 +1,4 @@
-# `microvenv`
+# microvenv
 
 Create a minimal virtual environment.
 
