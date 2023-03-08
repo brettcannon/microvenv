@@ -3,12 +3,14 @@ import pathlib
 import sys
 import sysconfig
 
+EXECUTABLE = pathlib.Path(sys.executable).resolve()
+
 # We don't resolve `sys.executable` on purpose.
-pyvenvcfg_template = f"""home = {pathlib.Path(sys.executable).resolve().parent}
+pyvenvcfg_template = f"""home = {EXECUTABLE.parent}
 include-system-site-packages = false
 version = {sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}
-executable = {pathlib.Path(sys.executable).resolve()}
-command = {sys.executable} {__file__} {{venv_dir}}
+executable = {EXECUTABLE}
+command = {{command}}
 """
 
 
@@ -43,16 +45,21 @@ def create(venv_dir):
     if sys.maxsize > 2**32 and os.name == "posix" and sys.platform != "darwin":
         (venv_dir / "lib64").symlink_to("lib", target_is_directory=True)
 
-    executable = pathlib.Path(sys.executable).resolve()
     for executable_name in (
         "python",
         f"python{sys.version_info.major}",
         f"python{sys.version_info.major}.{sys.version_info.minor}",
     ):
-        (venv_dir / "bin" / executable_name).symlink_to(executable)
+        (venv_dir / "bin" / executable_name).symlink_to(EXECUTABLE)
 
+    try:
+        script_path = pathlib.Path(__file__).resolve()
+    except NameError:
+        command = f"{sys.executable} -c '...'"
+    else:
+        command = f"{sys.executable} {script_path} {venv_dir}"
     (venv_dir / "pyvenv.cfg").write_text(
-        pyvenvcfg_template.format(venv_dir=venv_dir), encoding="utf-8"
+        pyvenvcfg_template.format(venv_dir=venv_dir, command=command), encoding="utf-8"
     )
 
 

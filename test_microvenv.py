@@ -1,6 +1,7 @@
 import configparser
 import os
 import pathlib
+import subprocess
 import sys
 import venv
 
@@ -111,3 +112,11 @@ def test_pyvenvcfg_executable(full_venv, micro_venv):
 def test_pyvenvfg_command(micro_venv):
     config = pyvenvcfg(micro_venv)
     assert config["command"] == f"{sys.executable} {microvenv.__file__} {micro_venv}"
+
+
+def test_code_size(monkeypatch, tmp_path):
+    """Make sure the source code can fit into `argv` for use with `-c`."""
+    with open(microvenv.__file__, "r", encoding="utf-8") as file:
+        source = file.read()
+    monkeypatch.chdir(tmp_path)
+    subprocess.check_call([sys.executable, "-c", source])
