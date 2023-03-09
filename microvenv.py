@@ -23,7 +23,7 @@ def _sysconfig_path(name, venv_dir):
 
 
 def create(venv_dir):
-    base_executable = getattr(sys, "_base_executable", sys.executable)
+    base_executable = pathlib.Path(getattr(sys, "_base_executable", sys.executable))
 
     try:
         scripts_dir = _sysconfig_path("scripts", venv_dir)
