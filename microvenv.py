@@ -3,43 +3,46 @@ import pathlib
 import sys
 import sysconfig
 
-EXECUTABLE = pathlib.Path(sys.executable).resolve()
-
-# We don't resolve `sys.executable` on purpose.
-pyvenvcfg_template = f"""home = {EXECUTABLE.parent}
+PYVENVCFG_TEMPLATE = f"""home = {{base_executable_parent}}
 include-system-site-packages = false
 version = {sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}
-executable = {EXECUTABLE}
+executable = {{resolved_base_executable}}
 command = {{command}}
 """
 
 
-def create(venv_dir):
+def _sysconfig_path(name, venv_dir):
     variables = {
         "base": venv_dir,
         "platbase": venv_dir,
         "installed_base": venv_dir,
         "installed_platbase": venv_dir,
     }
+
+    return pathlib.Path(sysconfig.get_path(name, "venv", variables))
+
+
+def create(venv_dir):
+    executable = pathlib.Path(sys.executable)
     try:
-        paths = [
-            pathlib.Path(sysconfig.get_path(name, "venv", variables))
-            for name in ("scripts", "include", "purelib")
-        ]
+        base_executable = pathlib.Path(sys._base_executable)
+    except AttributeError:
+        base_executable = executable
+
+    try:
+        scripts_dir = _sysconfig_path("scripts", venv_dir)
+        include_dir = _sysconfig_path("include", venv_dir)
+        purelib_dir = _sysconfig_path("purelib", venv_dir)
     except KeyError:
-        paths = [
-            venv_dir / subdir
-            for subdir in (
-                "bin",
-                "include",
-                pathlib.Path(
-                    "lib",
-                    f"python{sys.version_info.major}.{sys.version_info.minor}",
-                    "site-packages",
-                ),
-            )
-        ]
-    for dir in paths:
+        scripts_dir = venv_dir / "bin"
+        include_dir = venv_dir / "include"
+        purelib_dir = (
+            venv_dir
+            / "lib"
+            / f"python{sys.version_info.major}.{sys.version_info.minor}"
+            / "site-packages"
+        )
+    for dir in (scripts_dir, include_dir, purelib_dir):
         dir.mkdir(parents=True)
 
     if sys.maxsize > 2**32 and os.name == "posix" and sys.platform != "darwin":
@@ -50,16 +53,21 @@ def create(venv_dir):
         f"python{sys.version_info.major}",
         f"python{sys.version_info.major}.{sys.version_info.minor}",
     ):
-        (venv_dir / "bin" / executable_name).symlink_to(EXECUTABLE)
+        (scripts_dir / executable_name).symlink_to(base_executable)
 
     try:
-        script_path = pathlib.Path(__file__).resolve()
+        module_path = pathlib.Path(__file__).resolve()
     except NameError:
-        command = f"{EXECUTABLE} -c '...'"
+        command = f"{executable} -c '...'"
     else:
-        command = f"{EXECUTABLE} {script_path} {venv_dir.resolve()}"
+        command = f"{executable} {module_path} {venv_dir.resolve()}"
     (venv_dir / "pyvenv.cfg").write_text(
-        pyvenvcfg_template.format(venv_dir=venv_dir, command=command), encoding="utf-8"
+        PYVENVCFG_TEMPLATE.format(
+            base_executable_parent=base_executable.parent,
+            resolved_base_executable=base_executable.resolve(),
+            command=command,
+        ),
+        encoding="utf-8",
     )
 
 
@@ -67,7 +75,6 @@ if __name__ == "__main__":
     if len(sys.argv) > 2:
         print("Usage: microvenv.py [venv_dir='.venv']", file=sys.stderr)
         sys.exit(1)
-
     try:
         venv_dir = sys.argv[1]
     except IndexError:
