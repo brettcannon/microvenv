@@ -23,11 +23,7 @@ def _sysconfig_path(name, venv_dir):
 
 
 def create(venv_dir):
-    executable = pathlib.Path(sys.executable)
-    try:
-        base_executable = pathlib.Path(sys._base_executable)
-    except AttributeError:
-        base_executable = executable
+    base_executable = getattr(sys, "_base_executable", sys.executable)
 
     try:
         scripts_dir = _sysconfig_path("scripts", venv_dir)
@@ -58,9 +54,9 @@ def create(venv_dir):
     try:
         module_path = pathlib.Path(__file__).resolve()
     except NameError:
-        command = f"{executable} -c '...'"
+        command = f"{sys.executable} -c '...'"
     else:
-        command = f"{executable} {module_path} {venv_dir.resolve()}"
+        command = f"{sys.executable} {module_path} {venv_dir.resolve()}"
     (venv_dir / "pyvenv.cfg").write_text(
         PYVENVCFG_TEMPLATE.format(
             base_executable_parent=base_executable.parent,
