@@ -111,7 +111,23 @@ def test_pyvenvcfg_executable(full_venv, micro_venv):
 
 def test_pyvenvfg_command(micro_venv):
     config = pyvenvcfg(micro_venv)
-    assert config["command"] == f"{sys.executable} {microvenv.__file__} {micro_venv}"
+    script_path = pathlib.Path(microvenv.__file__).resolve()
+    assert (
+        config["command"]
+        == f"{pathlib.Path(sys.executable).resolve()} {script_path} {micro_venv.resolve()}"
+    )
+
+
+def test_pyvencfg_command_relative(monkeypatch, tmp_path):
+    monkeypatch.chdir(tmp_path)
+    venv_path = tmp_path / "venv"
+    microvenv.create(pathlib.Path(venv_path.name))
+    script_path = pathlib.Path(microvenv.__file__).resolve()
+    config = pyvenvcfg(venv_path)
+    assert (
+        config["command"]
+        == f"{pathlib.Path(sys.executable).resolve()} {script_path} {venv_path.resolve()}"
+    )
 
 
 def test_code_size(monkeypatch, tmp_path):

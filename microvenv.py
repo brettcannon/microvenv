@@ -55,9 +55,9 @@ def create(venv_dir):
     try:
         script_path = pathlib.Path(__file__).resolve()
     except NameError:
-        command = f"{sys.executable} -c '...'"
+        command = f"{EXECUTABLE} -c '...'"
     else:
-        command = f"{sys.executable} {script_path} {venv_dir}"
+        command = f"{EXECUTABLE} {script_path} {venv_dir.resolve()}"
     (venv_dir / "pyvenv.cfg").write_text(
         pyvenvcfg_template.format(venv_dir=venv_dir, command=command), encoding="utf-8"
     )
