@@ -4,7 +4,7 @@ build-backend = "flit_core.buildapi"
 
 [project]
 name = "microvenv"
-version = "2023.0.0"
+version = "2023.0.1"
 description = "A minimal re-implementation of Python's venv module"
 keywords = ["virtual environments", "venv"]
 readme = "README.md"

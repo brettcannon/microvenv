@@ -10,6 +10,19 @@ import pytest
 import microvenv
 
 
+@pytest.fixture
+def base_executable():
+    try:
+        return pathlib.Path(sys._base_executable)
+    except AttributeError:
+        return pathlib.Path(sys.executable)
+
+
+@pytest.fixture
+def executable():
+    return pathlib.Path(sys.executable)
+
+
 @pytest.fixture(scope="session")
 def full_venv(tmp_path_factory):
     venv_path = tmp_path_factory.mktemp("venvs") / "full_venv"
@@ -82,53 +95,46 @@ def test_pyvenvcfg_data(full_venv, micro_venv, key):
         assert full_config[key] == micro_config[key]
 
 
-def test_pyvenvcfg_home(full_venv, micro_venv):
-    raw_path = pathlib.Path(sys.executable)
-    raw_dir = raw_path.parent
-    resolved_dir = raw_path.resolve().parent
-    dir_options = frozenset(map(os.fsdecode, (raw_dir, resolved_dir)))
+def test_pyvenvcfg_home(base_executable, full_venv, micro_venv):
     full_config = pyvenvcfg(full_venv)
     micro_config = pyvenvcfg(micro_venv)
 
-    assert full_config["home"] in dir_options  # Sanity check.
-    assert micro_config["home"] in dir_options
+    assert full_config["home"] == os.fsdecode(base_executable.parent)  # Sanity check.
+    assert micro_config["home"] == os.fsdecode(base_executable.parent)
 
 
-def test_pyvenvcfg_executable(full_venv, micro_venv):
+def test_pyvenvcfg_executable(base_executable, full_venv, micro_venv):
+    resolved_base_executable = base_executable.resolve()
+    executable_path = os.fsdecode(resolved_base_executable)
     full_config = pyvenvcfg(full_venv)
     if "executable" not in full_config:
         # Introduced in Python 3.11.
         pytest.skip("`executable` key not in pyvenv.cfg")
 
     micro_config = pyvenvcfg(micro_venv)
-    raw_path = pathlib.Path(sys.executable)
-    resolved_path = raw_path.resolve()
-    path_options = frozenset(map(os.fsdecode, (raw_path, resolved_path)))
 
-    assert full_config["executable"] in path_options  # Sanity check.
-    assert micro_config["executable"] in path_options
+    assert full_config["executable"] == executable_path  # Sanity check.
+    assert micro_config["executable"] == executable_path
 
 
-def test_pyvenvfg_command(micro_venv):
+def test_pyvenvfg_command(executable, micro_venv):
     config = pyvenvcfg(micro_venv)
-    executable = pathlib.Path(sys.executable).resolve()
     script_path = pathlib.Path(microvenv.__file__).resolve()
     assert config["command"] == f"{executable} {script_path} {micro_venv.resolve()}"
 
 
-def test_pyvencfg_command_relative(monkeypatch, tmp_path):
+def test_pyvencfg_command_relative(executable, monkeypatch, tmp_path):
     monkeypatch.chdir(tmp_path)
     venv_path = tmp_path / "venv"
     microvenv.create(pathlib.Path(venv_path.name))
-    executable = pathlib.Path(sys.executable).resolve()
     script_path = pathlib.Path(microvenv.__file__).resolve()
     config = pyvenvcfg(venv_path)
     assert config["command"] == f"{executable} {script_path} {venv_path.resolve()}"
 
 
-def test_code_size(monkeypatch, tmp_path):
+def test_code_size(executable, monkeypatch, tmp_path):
     """Make sure the source code can fit into `argv` for use with `-c`."""
     with open(microvenv.__file__, "r", encoding="utf-8") as file:
         source = file.read()
     monkeypatch.chdir(tmp_path)
-    subprocess.check_call([sys.executable, "-c", source])
+    subprocess.check_call([os.fsdecode(executable), "-c", source])
