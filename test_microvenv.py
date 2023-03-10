@@ -26,10 +26,7 @@ def executable():
 @pytest.fixture(scope="session")
 def full_venv(tmp_path_factory):
     venv_path = tmp_path_factory.mktemp("venvs") / "full_venv"
-    venv_builder = venv.EnvBuilder(
-        symlinks=True, with_pip=False, system_site_packages=False
-    )
-    venv_builder.create(venv_path)
+    venv.create(venv_path, symlinks=True, with_pip=False, system_site_packages=False)
     return venv_path
 
 

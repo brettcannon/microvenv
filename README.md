@@ -10,23 +10,23 @@ In general, though, using the [`venv` module](https://docs.python.org/3/library/
 ## Usage
 
 ```console
-python microvenv.py [path=".venv"]
+python microvenv.py [env_dir=".venv"]
 ```
 
 If an argument is provided to the script, it is used as the path to create the virtual environment in. Otherwise, the virtual environment is created in `.venv`.
 
-For programmatic usage, use the [`runpy` module](https://docs.python.org/3/library/runpy.html#module-runpy) to execute the script:
+For programmatic usage, there is the `create()` function, which is analogous to the [`venv.create()` function](https://docs.python.org/3/library/venv.html#venv.create).
 
 ```python
-runpy.run_path("microvenv.py", run_name="__main__")
+def create(env_dir: os.PathLike = ".venv") -> None
 ```
 
-The contents of `microvenv.py` is also small enough to be passed in via the `-c` flag to `python`.
+The `microvenv.py` file is also small enough to have its contents passed in via the `-c` flag to `python`.
 
 ## Differences compared to the [`venv` module](https://docs.python.org/3/library/venv.html#module-venv)
 
 The module operates similarly to `py -m venv --symlinks --without-pip .venv`,
 except that:
 
-- There are no activation scripts (execute `python` in the virtual environment directly).
-- Windows is not supported.
+- There are no activation scripts (you can execute `python` in the virtual environment directly)
+- Windows is not supported

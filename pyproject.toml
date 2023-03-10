@@ -4,7 +4,7 @@ build-backend = "flit_core.buildapi"
 
 [project]
 name = "microvenv"
-version = "2023.0.1"
+version = "2023.1.0"
 description = "A minimal re-implementation of Python's venv module"
 keywords = ["virtual environments", "venv"]
 readme = "README.md"
@@ -15,15 +15,12 @@ requires-python = ">=3.7"
 classifiers = [
   "Development Status :: 3 - Alpha",
   "License :: OSI Approved :: MIT License",
-  "Environment :: Console",
   "Intended Audience :: Developers",
   "Topic :: Software Development",
   "Topic :: Utilities",
   "Natural Language :: English",
   "Operating System :: MacOS :: MacOS X",
-  "Operating System :: POSIX :: Linux",
-  "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3 :: Only",
+  "Operating System :: POSIX",
   "Programming Language :: Python :: 3.7",
   "Programming Language :: Python :: 3.8",
   "Programming Language :: Python :: 3.9",
