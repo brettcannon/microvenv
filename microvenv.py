@@ -3,6 +3,7 @@ import pathlib
 import sys
 import sysconfig
 
+# Should not change during execution, so it's reasonable as a global.
 _BASE_EXECUTABLE = pathlib.Path(getattr(sys, "_base_executable", sys.executable))
 
 _PYVENVCFG_TEMPLATE = f"""home = {_BASE_EXECUTABLE.parent}
@@ -26,8 +27,12 @@ def _sysconfig_path(name, env_dir):
 
 # Analogous to `venv.create()`.
 def create(env_dir=".venv"):
-    """Create a minimal virtual environment."""
+    """Create a minimal virtual environment.
+
+    Analogous to `venv.create(env_dir, symlinks=True, with_pip=False)`.
+    """
     env_path = pathlib.Path(env_dir)
+    # sysconfig scheme support introduced in Python 3.11.
     try:
         scripts_dir = _sysconfig_path("scripts", env_path)
         include_dir = _sysconfig_path("include", env_path)
@@ -45,7 +50,12 @@ def create(env_dir=".venv"):
         dir.mkdir(parents=True)
 
     if sys.maxsize > 2**32 and os.name == "posix" and sys.platform != "darwin":
-        (env_path / "lib64").symlink_to("lib", target_is_directory=True)
+        lib_path = env_path / "lib"
+        lib64_path = env_path / "lib64"
+        # There is no guarantee the sysconfig scheme will produce a `lib`
+        # directory.
+        if lib_path.is_dir() and not lib64_path.exists():
+            lib64_path.symlink_to(lib_path, target_is_directory=True)
 
     for executable_name in (
         "python",
@@ -54,11 +64,10 @@ def create(env_dir=".venv"):
     ):
         (scripts_dir / executable_name).symlink_to(_BASE_EXECUTABLE)
 
-    try:
-        module_path = pathlib.Path(__file__).resolve()
-    except NameError:
+    if __spec__ is None:
         command = f"{sys.executable} -c '...'"
     else:
+        module_path = pathlib.Path(__spec__.origin).resolve()
         command = f"{sys.executable} {module_path} {env_path.resolve()}"
     (env_path / "pyvenv.cfg").write_text(
         _PYVENVCFG_TEMPLATE.format(command=command),
