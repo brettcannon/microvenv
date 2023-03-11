@@ -135,3 +135,4 @@ def test_code_size(executable, monkeypatch, tmp_path):
         source = file.read()
     monkeypatch.chdir(tmp_path)
     subprocess.check_call([os.fsdecode(executable), "-c", source])
+    assert pathlib.Path(".venv").is_dir()
