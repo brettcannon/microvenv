@@ -18,7 +18,7 @@ If an argument is provided to the script, it is used as the path to create the v
 For programmatic usage, there is the `create()` function, which is analogous to the [`venv.create()` function](https://docs.python.org/3/library/venv.html#venv.create).
 
 ```python
-def create(env_dir: os.PathLike = ".venv") -> None
+def create(env_dir: os.PathLike[str] | str = ".venv") -> None
 ```
 
 The `microvenv.py` file is also small enough to have its contents passed in via the `-c` flag to `python`.
