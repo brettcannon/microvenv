@@ -1,4 +1,3 @@
-import configparser
 import os
 import pathlib
 import subprocess
@@ -38,10 +37,15 @@ def micro_venv(tmp_path_factory):
 
 
 def pyvenvcfg(venv_path):
-    config_text = (venv_path / "pyvenv.cfg").read_text(encoding="utf-8")
-    config = configparser.ConfigParser()
-    config.read_string("\n".join(["[_]", config_text]))
-    return config["_"]
+    config = {}
+    with open(venv_path / "pyvenv.cfg", "r", encoding="utf-8") as file:
+        for line in file:
+            if "=" in line:
+                # This is how `site` reads a `pyvenv.cfg`, so it's about as
+                # official as we can get.
+                key, _, value = line.partition("=")
+                config[key.strip()] = value.strip()
+    return config
 
 
 def test_structure(full_venv, micro_venv):
