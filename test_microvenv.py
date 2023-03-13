@@ -138,5 +138,10 @@ def test_code_size(executable, monkeypatch, tmp_path):
     with open(microvenv.__file__, "r", encoding="utf-8") as file:
         source = file.read()
     monkeypatch.chdir(tmp_path)
+    env_path = pathlib.Path(".venv")
     subprocess.check_call([os.fsdecode(executable), "-c", source])
-    assert pathlib.Path(".venv").is_dir()
+
+    assert env_path.is_dir()
+    command = pyvenvcfg(env_path)["command"]
+    assert command.startswith(sys.executable)
+    assert " -c " in command
