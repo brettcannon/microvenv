@@ -118,13 +118,13 @@ def test_pyvenvcfg_executable(base_executable, full_venv, micro_venv):
     assert micro_config["executable"] == executable_path
 
 
-def test_pyvenvfg_command(executable, micro_venv):
+def test_pyvenvcfg_command(executable, micro_venv):
     config = pyvenvcfg(micro_venv)
     script_path = pathlib.Path(microvenv.__file__).resolve()
     assert config["command"] == f"{executable} {script_path} {micro_venv.resolve()}"
 
 
-def test_pyvencfg_command_relative(executable, monkeypatch, tmp_path):
+def test_pyvenvcfg_command_relative(executable, monkeypatch, tmp_path):
     monkeypatch.chdir(tmp_path)
     venv_path = tmp_path / "venv"
     microvenv.create(pathlib.Path(venv_path.name))
