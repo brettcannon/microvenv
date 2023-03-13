@@ -55,7 +55,7 @@ def test_structure(full_venv, micro_venv):
         micro_root = micro_venv / relative_root
         for dirname in dirnames:
             micro_dir = micro_root / dirname
-            micro_dir.is_dir()
+            assert micro_dir.is_dir()
 
         for filename in filenames:
             # Don't care about activation scripts.
