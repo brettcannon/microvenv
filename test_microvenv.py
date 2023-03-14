@@ -44,7 +44,7 @@ def pyvenvcfg(venv_path):
                 # This is how `site` reads a `pyvenv.cfg`, so it's about as
                 # official as we can get.
                 key, _, value = line.partition("=")
-                config[key.strip()] = value.strip()
+                config[key.strip().lower()] = value.strip()
     return config
 
 
