@@ -55,7 +55,7 @@ def create(env_dir=".venv"):
         # There is no guarantee the sysconfig scheme will produce a `lib`
         # directory.
         if lib_path.is_dir() and not lib64_path.exists():
-            lib64_path.symlink_to(lib_path, target_is_directory=True)
+            lib64_path.symlink_to("lib", target_is_directory=True)
 
     for executable_name in (
         "python",
