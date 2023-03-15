@@ -79,7 +79,8 @@ def test_lib64(full_venv, micro_venv):
         assert micro_lib64.exists()
         assert micro_lib64.is_symlink()
         assert micro_lib64.resolve() == (micro_venv / "lib")
-        assert os.fsdecode(pathlib.Path.readlink(micro_lib64)) == "lib"
+        # pathlib.Path.readlink() was added in Python 3.9.
+        assert os.readlink(micro_lib64) == "lib"
 
 
 @pytest.mark.parametrize(
