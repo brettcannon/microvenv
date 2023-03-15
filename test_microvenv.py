@@ -79,6 +79,7 @@ def test_lib64(full_venv, micro_venv):
         assert micro_lib64.exists()
         assert micro_lib64.is_symlink()
         assert micro_lib64.resolve() == (micro_venv / "lib")
+        assert pathlib.Path.readlink(micro_lib64).is_relative_to("lib")
 
 
 @pytest.mark.parametrize(
