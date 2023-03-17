@@ -76,12 +76,9 @@ def create(env_dir=".venv"):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) > 2:
-        print("Usage: microvenv.py [env_dir='.venv']", file=sys.stderr)
-        sys.exit(1)
-    try:
-        env_dir = sys.argv[1]
-    except IndexError:
-        env_dir = ".venv"
+    import argparse
 
-    create(env_dir)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("env_dir", default=".venv", nargs="?", help="default: '.venv'")
+    args = parser.parse_args()
+    create(args.env_dir)
