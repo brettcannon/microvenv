@@ -8,7 +8,7 @@ _BASE_EXECUTABLE = pathlib.Path(getattr(sys, "_base_executable", sys.executable)
 
 _PYVENVCFG_TEMPLATE = f"""home = {_BASE_EXECUTABLE.parent}
 include-system-site-packages = false
-version = {'.'.join(map(str, sys.version_info[:3]))}
+version = {'%d.%d.%d' % sys.version_info[:3]}
 executable = {_BASE_EXECUTABLE.resolve()}
 command = {{command}}
 """
