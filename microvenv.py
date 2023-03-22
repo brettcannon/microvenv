@@ -79,6 +79,7 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("env_dir", default=".venv", nargs="?", help="default: '.venv'")
+    default_dir = ".venv"
+    parser.add_argument("env_dir", default=default_dir, nargs="?", help=f"Directory to create virtual environnment in (default: {default_dir!r}")
     args = parser.parse_args()
     create(args.env_dir)
