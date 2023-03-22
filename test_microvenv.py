@@ -147,3 +147,24 @@ def test_code_size(executable, monkeypatch, tmp_path):
     command = pyvenvcfg(env_path)["command"]
     assert command.startswith(sys.executable)
     assert " -c " in command
+
+
+@pytest.mark.parametrize(
+    ["args", "expected_dir"], [([], ".venv"), (["some-venv"], "some-venv")]
+)
+def test_cli_relative_path(executable, monkeypatch, tmp_path, args, expected_dir):
+    """Test using a relative path (both the default and explicitly provided)."""
+    path = tmp_path / expected_dir
+    monkeypatch.chdir(tmp_path)
+    subprocess.check_call([os.fsdecode(executable), microvenv.__file__, *args])
+    assert path.is_dir()
+    assert (path / "pyvenv.cfg").is_file()
+
+
+def test_cli_absolute_path(executable, tmp_path):
+    path = tmp_path / "some-venv"
+    subprocess.check_call(
+        [os.fsdecode(executable), microvenv.__file__, os.fsdecode(path)]
+    )
+    assert path.is_dir()
+    assert (path / "pyvenv.cfg").is_file()
