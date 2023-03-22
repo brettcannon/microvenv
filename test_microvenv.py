@@ -168,3 +168,17 @@ def test_cli_absolute_path(executable, tmp_path):
     )
     assert path.is_dir()
     assert (path / "pyvenv.cfg").is_file()
+
+
+def test_cli_too_many_args(executable, tmp_path):
+    path = tmp_path / "some-venv"
+    with pytest.raises(subprocess.CalledProcessError):
+        subprocess.check_call(
+            [
+                os.fsdecode(executable),
+                microvenv.__file__,
+                os.fsdecode(path),
+                "extra-arg",
+            ]
+        )
+    assert not path.exists()
