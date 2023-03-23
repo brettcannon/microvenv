@@ -34,5 +34,5 @@ test = ["pytest"]
 lint = ["black", "ruff"]
 
 [project.urls]
-source = "https://github.com/brettcannon/microvenv"
-changelog = "https://github.com/brettcannon/microvenv/releases"
+Changelog = "https://github.com/brettcannon/microvenv/releases"
+Source = "https://github.com/brettcannon/microvenv"
