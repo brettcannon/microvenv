@@ -14,7 +14,7 @@ maintainers = [{ name = "Brett Cannon", email = "brett@python.org" }]
 authors = [{ name = "Brett Cannon", email = "brett@python.org" }]
 requires-python = ">=3.7"
 classifiers = [
-  "Development Status :: 3 - Alpha",
+  "Development Status :: 4 - Beta",
   "License :: OSI Approved :: MIT License",
   "Intended Audience :: Developers",
   "Topic :: Software Development",
@@ -34,5 +34,5 @@ test = ["pytest"]
 lint = ["black", "ruff"]
 
 [project.urls]
-source = "https://github.com/brettcannon/microvenv"
-changelog = "https://github.com/brettcannon/microvenv/releases"
+Changelog = "https://github.com/brettcannon/microvenv/releases"
+Source = "https://github.com/brettcannon/microvenv"
