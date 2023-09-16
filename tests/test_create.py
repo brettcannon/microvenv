@@ -7,6 +7,7 @@ import venv
 import pytest
 
 import microvenv
+import microvenv._create
 
 
 @pytest.fixture
@@ -15,11 +16,6 @@ def base_executable():
         return pathlib.Path(sys._base_executable)
     except AttributeError:
         return pathlib.Path(sys.executable)
-
-
-@pytest.fixture
-def executable():
-    return pathlib.Path(sys.executable)
 
 
 @pytest.fixture(scope="session")
@@ -46,6 +42,23 @@ def pyvenvcfg(venv_path):
                 key, _, value = line.partition("=")
                 config[key.strip().lower()] = value.strip()
     return config
+
+
+def test_code_size(executable, monkeypatch, tmp_path):
+    """Make sure the source code can fit into `argv` for use with `-c`."""
+    with open(microvenv._create.__file__, "r", encoding="utf-8") as file:
+        source = file.read()
+    monkeypatch.chdir(tmp_path)
+    env_path = pathlib.Path(".venv")
+    subprocess.check_call([os.fsdecode(executable), "-c", source])
+
+    # Since `__name__ == "__main__"` calls `_create.main()`, don't worry about
+    # validating the virtual environment details as the CLI tests take care of
+    # that.
+    assert env_path.is_dir()
+    command = pyvenvcfg(env_path)["command"]
+    assert command.startswith(sys.executable)
+    assert " -c " in command
 
 
 def test_structure(full_venv, micro_venv):
@@ -122,7 +135,7 @@ def test_pyvenvcfg_executable(base_executable, full_venv, micro_venv):
 
 def test_pyvenvcfg_command(executable, micro_venv):
     config = pyvenvcfg(micro_venv)
-    script_path = pathlib.Path(microvenv.__file__).resolve()
+    script_path = pathlib.Path(microvenv._create.__file__).resolve()
     assert config["command"] == f"{executable} {script_path} {micro_venv.resolve()}"
 
 
@@ -130,55 +143,6 @@ def test_pyvenvcfg_command_relative(executable, monkeypatch, tmp_path):
     monkeypatch.chdir(tmp_path)
     venv_path = tmp_path / "venv"
     microvenv.create(pathlib.Path(venv_path.name))
-    script_path = pathlib.Path(microvenv.__file__).resolve()
+    script_path = pathlib.Path(microvenv._create.__file__).resolve()
     config = pyvenvcfg(venv_path)
     assert config["command"] == f"{executable} {script_path} {venv_path.resolve()}"
-
-
-def test_code_size(executable, monkeypatch, tmp_path):
-    """Make sure the source code can fit into `argv` for use with `-c`."""
-    with open(microvenv.__file__, "r", encoding="utf-8") as file:
-        source = file.read()
-    monkeypatch.chdir(tmp_path)
-    env_path = pathlib.Path(".venv")
-    subprocess.check_call([os.fsdecode(executable), "-c", source])
-
-    assert env_path.is_dir()
-    command = pyvenvcfg(env_path)["command"]
-    assert command.startswith(sys.executable)
-    assert " -c " in command
-
-
-@pytest.mark.parametrize(
-    ["args", "expected_dir"], [([], ".venv"), (["some-venv"], "some-venv")]
-)
-def test_cli_relative_path(executable, monkeypatch, tmp_path, args, expected_dir):
-    """Test using a relative path (both the default and explicitly provided)."""
-    path = tmp_path / expected_dir
-    monkeypatch.chdir(tmp_path)
-    subprocess.check_call([os.fsdecode(executable), microvenv.__file__, *args])
-    assert path.is_dir()
-    assert (path / "pyvenv.cfg").is_file()
-
-
-def test_cli_absolute_path(executable, tmp_path):
-    path = tmp_path / "some-venv"
-    subprocess.check_call(
-        [os.fsdecode(executable), microvenv.__file__, os.fsdecode(path)]
-    )
-    assert path.is_dir()
-    assert (path / "pyvenv.cfg").is_file()
-
-
-def test_cli_too_many_args(executable, tmp_path):
-    path = tmp_path / "some-venv"
-    with pytest.raises(subprocess.CalledProcessError):
-        subprocess.check_call(
-            [
-                os.fsdecode(executable),
-                microvenv.__file__,
-                os.fsdecode(path),
-                "extra-arg",
-            ]
-        )
-    assert not path.exists()
