@@ -5,7 +5,8 @@ import pathlib
 import sys
 import sysconfig
 
-# Should not change during execution, so it's reasonable as a global.
+# This should not change during execution, so it's reasonable as a global.
+# The path is purposefully unresolved for pyvenv.cfg purposes.
 _BASE_EXECUTABLE = pathlib.Path(getattr(sys, "_base_executable", sys.executable))
 
 _PYVENVCFG_TEMPLATE = f"""\
