@@ -25,7 +25,7 @@ The `microvenv/_create.py` file is also small enough to have its contents passed
 
 ## Differences compared to the [`venv` module](https://docs.python.org/3/library/venv.html#module-venv)
 
-The module operates similarly to `py -m venv --symlinks --without-pip .venv`,
+The code operates similarly to `py -m venv --symlinks --without-pip .venv`,
 except that:
 
 - There are no activation scripts (you can execute `python` in the virtual environment directly)
