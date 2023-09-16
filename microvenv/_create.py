@@ -1,3 +1,5 @@
+"""A minimal, self-contained implementation of `venv`."""
+import argparse
 import os
 import pathlib
 import sys
@@ -6,7 +8,8 @@ import sysconfig
 # Should not change during execution, so it's reasonable as a global.
 _BASE_EXECUTABLE = pathlib.Path(getattr(sys, "_base_executable", sys.executable))
 
-_PYVENVCFG_TEMPLATE = f"""home = {_BASE_EXECUTABLE.parent}
+_PYVENVCFG_TEMPLATE = f"""\
+home = {_BASE_EXECUTABLE.parent}
 include-system-site-packages = false
 version = {'.'.join(map(str, sys.version_info[:3]))}
 executable = {_BASE_EXECUTABLE.resolve()}
@@ -26,7 +29,7 @@ def _sysconfig_path(name, env_dir):
 
 
 # Analogous to `venv.create()`.
-def create(env_dir=".venv"):
+def create(env_dir=".venv", *, scm_ignore_files=frozenset(["git"])):
     """Create a minimal virtual environment.
 
     Analogous to `venv.create(env_dir, symlinks=True, with_pip=False)`.
@@ -74,12 +77,28 @@ def create(env_dir=".venv"):
         encoding="utf-8",
     )
 
+    scm_ignore_files = frozenset(scm_ignore_files)
+    if scm_ignore_files == {"git"}:
+        (env_path / ".gitignore").write_text("*\n", encoding="utf-8")
+    elif scm_ignore_files:
+        unexpected = scm_ignore_files - {"git"}
+        raise NotImplementedError(
+            f"Only `git` is supported as a SCM ignore file, not {unexpected}."
+        )
 
-if __name__ == "__main__":
-    import argparse
 
+def main():
     parser = argparse.ArgumentParser()
     default_dir = ".venv"
+    parser.add_argument(
+        "--without-scm-ignore-files",
+        dest="scm_ignore_files",
+        action="store_const",
+        const=frozenset(),
+        default=frozenset(["git"]),
+        help="Skips adding SCM ignore files to the environment "
+        "directory (otherwise a `.gitignore` file is added).",
+    )
     parser.add_argument(
         "env_dir",
         default=default_dir,
@@ -87,4 +106,8 @@ if __name__ == "__main__":
         help=f"Directory to create virtual environment in (default: {default_dir!r}",
     )
     args = parser.parse_args()
-    create(args.env_dir)
+    create(args.env_dir, scm_ignore_files=args.scm_ignore_files)
+
+
+if __name__ == "__main__":
+    main()
