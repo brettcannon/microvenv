@@ -4,13 +4,13 @@ Create a minimal virtual environment.
 
 This module is meant for when the [`venv` module](https://docs.python.org/3/library/venv.html#module-venv) has been removed from the standard library by your Python distribution. Because `venv` is not available on PyPI and is developed in the stdlib, it is not possible to install it using `pip` or simply copy the code and expect it to work with older versions of Python. This module then attempts to be that portable alternative for creating virtual environments.
 
-In general, though, using the [`venv` module](https://docs.python.org/3/library/venv.html#module-venv) should be preferred and this module is only used as a fallback.
+In general, though, using the [`venv` module](https://docs.python.org/3/library/venv.html#module-venv) should be preferred and this module used as a fallback.
 
 
 ## Usage
 
 ```console
-python microvenv.py [env_dir=".venv"]
+python microvenv.py [--without-scm-ignore-files] [env_dir=".venv"]
 ```
 
 If an argument is provided to the script, it is used as the path to create the virtual environment in. Otherwise, the virtual environment is created in `.venv`.
@@ -18,10 +18,10 @@ If an argument is provided to the script, it is used as the path to create the v
 For programmatic usage, there is the `create()` function, which is analogous to the [`venv.create()` function](https://docs.python.org/3/library/venv.html#venv.create).
 
 ```python
-def create(env_dir: os.PathLike[str] | str = ".venv") -> None
+def create(env_dir: os.PathLike[str] | str = ".venv", *, scm_ignore_files={"git"}) -> None
 ```
 
-The `microvenv.py` file is also small enough to have its contents passed in via the `-c` flag to `python`.
+The `microvenv/_create.py` file is also small enough to have its contents passed in via the `-c` flag to `python`.
 
 ## Differences compared to the [`venv` module](https://docs.python.org/3/library/venv.html#module-venv)
 
