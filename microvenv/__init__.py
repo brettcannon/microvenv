@@ -8,7 +8,6 @@ from ._create import create as create
 IN_VIRTUAL_ENV = sys.prefix != sys.base_prefix
 
 
-
 def parse_config(env_dir):
     """Parse the pyvenv.cfg file in the specified virtual environment.
 
@@ -33,4 +32,3 @@ def parse_config(env_dir):
                 key, _, value = line.partition("=")
                 config[key.strip().lower()] = value.strip()
     return config
-
