@@ -2,7 +2,6 @@ import os
 import pathlib
 import subprocess
 import sys
-import venv
 
 import pytest
 
@@ -19,29 +18,10 @@ def base_executable():
 
 
 @pytest.fixture(scope="session")
-def full_venv(tmp_path_factory):
-    venv_path = tmp_path_factory.mktemp("venvs") / "full_venv"
-    venv.create(venv_path, symlinks=True, with_pip=False, system_site_packages=False)
-    return venv_path
-
-
-@pytest.fixture(scope="session")
 def micro_venv(tmp_path_factory):
     venv_path = tmp_path_factory.mktemp("venvs") / "micro_venv"
     microvenv.create(venv_path)
     return venv_path
-
-
-def pyvenvcfg(venv_path):
-    config = {}
-    with open(venv_path / "pyvenv.cfg", "r", encoding="utf-8") as file:
-        for line in file:
-            if "=" in line:
-                # This is how `site` reads a `pyvenv.cfg`, so it's about as
-                # official as we can get.
-                key, _, value = line.partition("=")
-                config[key.strip().lower()] = value.strip()
-    return config
 
 
 def test_code_size(executable, monkeypatch, tmp_path):
@@ -56,7 +36,7 @@ def test_code_size(executable, monkeypatch, tmp_path):
     # validating the virtual environment details as the CLI tests take care of
     # that.
     assert env_path.is_dir()
-    command = pyvenvcfg(env_path)["command"]
+    command = microvenv.parse_config(env_path)["command"]
     assert command.startswith(sys.executable)
     assert " -c " in command
 
@@ -101,8 +81,8 @@ def test_lib64(full_venv, micro_venv):
     ["include-system-site-packages", "version"],
 )
 def test_pyvenvcfg_data(full_venv, micro_venv, key):
-    full_config = pyvenvcfg(full_venv)
-    micro_config = pyvenvcfg(micro_venv)
+    full_config = microvenv.parse_config(full_venv)
+    micro_config = microvenv.parse_config(micro_venv)
 
     # Use the full config as source of keys to check as as we may have keys in the micro
     # venv that too new for the version of Python being tested against.
@@ -112,8 +92,8 @@ def test_pyvenvcfg_data(full_venv, micro_venv, key):
 
 
 def test_pyvenvcfg_home(base_executable, full_venv, micro_venv):
-    full_config = pyvenvcfg(full_venv)
-    micro_config = pyvenvcfg(micro_venv)
+    full_config = microvenv.parse_config(full_venv)
+    micro_config = microvenv.parse_config(micro_venv)
 
     assert full_config["home"] == os.fsdecode(base_executable.parent)  # Sanity check.
     assert micro_config["home"] == os.fsdecode(base_executable.parent)
@@ -122,19 +102,19 @@ def test_pyvenvcfg_home(base_executable, full_venv, micro_venv):
 def test_pyvenvcfg_executable(base_executable, full_venv, micro_venv):
     resolved_base_executable = base_executable.resolve()
     executable_path = os.fsdecode(resolved_base_executable)
-    full_config = pyvenvcfg(full_venv)
+    full_config = microvenv.parse_config(full_venv)
     if "executable" not in full_config:
         # Introduced in Python 3.11.
         pytest.skip("`executable` key not in pyvenv.cfg")
 
-    micro_config = pyvenvcfg(micro_venv)
+    micro_config = microvenv.parse_config(micro_venv)
 
     assert full_config["executable"] == executable_path  # Sanity check.
     assert micro_config["executable"] == executable_path
 
 
 def test_pyvenvcfg_command(executable, micro_venv):
-    config = pyvenvcfg(micro_venv)
+    config = microvenv.parse_config(micro_venv)
     script_path = pathlib.Path(microvenv._create.__file__).resolve()
     assert config["command"] == f"{executable} {script_path} {micro_venv.resolve()}"
 
@@ -144,5 +124,5 @@ def test_pyvenvcfg_command_relative(executable, monkeypatch, tmp_path):
     venv_path = tmp_path / "venv"
     microvenv.create(pathlib.Path(venv_path.name))
     script_path = pathlib.Path(microvenv._create.__file__).resolve()
-    config = pyvenvcfg(venv_path)
+    config = microvenv.parse_config(venv_path)
     assert config["command"] == f"{executable} {script_path} {venv_path.resolve()}"
