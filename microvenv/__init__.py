@@ -2,11 +2,17 @@ import os
 import pathlib
 import sys
 
+from . import _create
+
 # Exported as part of the public API.
 from ._create import create as create
 
 # https://docs.python.org/3/library/venv.html#how-venvs-work
 IN_VIRTUAL_ENV = sys.prefix != sys.base_prefix
+
+
+class ActivationError(Exception):
+    """Raised when an error occurs during virtual environment activation."""
 
 
 def parse_config(env_dir):
@@ -63,7 +69,16 @@ def activation(env_vars=os.environ):
 
     No environment variables are provided in relation to shell prompts.
     """
-    # XXX in a virtual environment
-    # XXX PYTHONHOME
-    # XXX PATH
-    # XXX VIRTUAL_ENV
+    if not IN_VIRTUAL_ENV:
+        raise ActivationError("Not running from a virtual environment")
+    elif "PYTHONHOME" in env_vars:
+        raise ActivationError("PYTHONHOME is set")
+
+    bin_path = pathlib.Path(sys.executable).parent
+    bin_dir = os.fsdecode(bin_path)
+    if "PATH" not in env_vars:
+        path = bin_dir
+    else:
+        path = os.pathsep.join([os.fsdecode(bin_dir), env_vars["PATH"]])
+
+    return {"PATH": path, "VIRTUAL_ENV": os.fsdecode(bin_path.parent)}
