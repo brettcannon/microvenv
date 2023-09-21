@@ -12,3 +12,4 @@ def lint(session):
     session.install(".[lint]")
     session.run("ruff", "check", ".")
     session.run("black", "--check", ".")
+    session.run("mypy", ".")
