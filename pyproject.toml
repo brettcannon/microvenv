@@ -22,17 +22,16 @@ classifiers = [
   "Natural Language :: English",
   "Operating System :: MacOS :: MacOS X",
   "Operating System :: POSIX",
-  "Programming Language :: Python :: 3.7",
-  "Programming Language :: Python :: 3.8",
-  "Programming Language :: Python :: 3.9",
-  "Programming Language :: Python :: 3.10",
-  "Programming Language :: Python :: 3.11",
 ]
 
 [project.optional-dependencies]
 test = ["pytest"]
-lint = ["black", "ruff"]
+lint = ["black", "mypy", "ruff"]
 
 [project.urls]
 Changelog = "https://github.com/brettcannon/microvenv/releases"
 Source = "https://github.com/brettcannon/microvenv"
+
+
+[tool.mypy]
+ignore_missing_imports = true

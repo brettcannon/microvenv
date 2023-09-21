@@ -2,8 +2,6 @@ import os
 import pathlib
 import sys
 
-from . import _create
-
 # Exported as part of the public API.
 from ._create import create as create
 
