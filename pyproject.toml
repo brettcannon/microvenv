@@ -25,6 +25,7 @@ classifiers = [
 ]
 
 [project.optional-dependencies]
+doc = ["sphinx", "sphinx-rtd-theme"]
 test = ["pytest"]
 lint = ["black", "mypy", "ruff"]
 

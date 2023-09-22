@@ -29,8 +29,11 @@ def _sysconfig_path(name, env_dir):
     return pathlib.Path(sysconfig.get_path(name, "venv", variables))
 
 
+DEFAULT_ENV_DIR = ".venv"
+
+
 # Analogous to `venv.create()`.
-def create(env_dir=".venv", *, scm_ignore_files=frozenset(["git"])):
+def create(env_dir=DEFAULT_ENV_DIR, *, scm_ignore_files=frozenset(["git"])):
     """Create a minimal virtual environment.
 
     Analogous to `venv.create(env_dir, symlinks=True, with_pip=False)`.
@@ -89,8 +92,9 @@ def create(env_dir=".venv", *, scm_ignore_files=frozenset(["git"])):
 
 
 def main():
-    parser = argparse.ArgumentParser()
-    default_dir = ".venv"
+    parser = argparse.ArgumentParser(
+        description="Create a minimal virtual environment."
+    )
     parser.add_argument(
         "--without-scm-ignore-files",
         dest="scm_ignore_files",
@@ -102,9 +106,12 @@ def main():
     )
     parser.add_argument(
         "env_dir",
-        default=default_dir,
+        default=DEFAULT_ENV_DIR,
         nargs="?",
-        help=f"Directory to create virtual environment in (default: {default_dir!r}",
+        help=(
+            "Directory to create virtual environment in "
+            f"(default: {DEFAULT_ENV_DIR!r}"
+        ),
     )
     args = parser.parse_args()
     create(args.env_dir, scm_ignore_files=args.scm_ignore_files)
