@@ -1,3 +1,6 @@
+import os
+import pathlib
+
 import nox  # type: ignore
 
 
@@ -13,3 +16,21 @@ def lint(session):
     session.run("ruff", "check", ".")
     session.run("black", "--check", ".")
     session.run("mypy", ".")
+
+
+@nox.session
+def docs(session):
+    docs_path = pathlib.Path("docs")
+    session.install(".[doc]")
+    session.debug("Recording `microvenv --help`")
+    out = session.run("python", "-m", "microvenv", "--help", silent=True)
+    with open(docs_path / "help.txt", "w", encoding="utf-8") as file:
+        file.write(out.strip())
+    session.run(
+        "sphinx-build",
+        "-j",
+        "auto",
+        "-W",
+        os.fsdecode(docs_path),
+        os.fsdecode(docs_path / "_build"),
+    )

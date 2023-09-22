@@ -1,0 +1,13 @@
+usage: __main__.py [-h] [--without-scm-ignore-files] [env_dir]
+
+Create a minimal virtual environment.
+
+positional arguments:
+  env_dir               Directory to create virtual environment in (default:
+                        '.venv'
+
+options:
+  -h, --help            show this help message and exit
+  --without-scm-ignore-files
+                        Skips adding SCM ignore files to the environment
+                        directory (otherwise a `.gitignore` file is added).

@@ -29,7 +29,7 @@ def test_code_size(executable, monkeypatch, tmp_path):
     with open(microvenv._create.__file__, "r", encoding="utf-8") as file:
         source = file.read()
     monkeypatch.chdir(tmp_path)
-    env_path = pathlib.Path(".venv")
+    env_path = pathlib.Path(microvenv.DEFAULT_ENV_DIR)
     subprocess.check_call([os.fsdecode(executable), "-c", source])
 
     # Since `__name__ == "__main__"` calls `_create.main()`, don't worry about

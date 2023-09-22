@@ -3,6 +3,10 @@ from typing import TypedDict
 
 IN_VIRTUAL_ENV: bool
 
+DEFAULT_ENV_DIR: str
+
+class ActivationError(Exception): ...
+
 def parse_config(env_dir: str | PathLike[str]) -> dict[str, str]: ...
 
 class _ActivationEnvVars(TypedDict):

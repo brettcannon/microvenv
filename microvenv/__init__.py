@@ -3,6 +3,7 @@ import pathlib
 import sys
 
 # Exported as part of the public API.
+from ._create import DEFAULT_ENV_DIR as DEFAULT_ENV_DIR
 from ._create import create as create
 
 # https://docs.python.org/3/library/venv.html#how-venvs-work
@@ -10,22 +11,22 @@ IN_VIRTUAL_ENV = sys.prefix != sys.base_prefix
 
 
 class ActivationError(Exception):
-    """Raised when an error occurs during virtual environment activation."""
+    """An error trying to calculate environment activation via :func:`activation`."""
 
 
 def parse_config(env_dir):
-    """Parse the pyvenv.cfg file in the specified virtual environment.
+    """Parse the ``pyvenv.cfg`` file in the specified virtual environment.
 
     A dict is returned with strings for keys and values. All keys are
     lowercased, but otherwise no validation is performed. No changes are made to
-    the values (e.g., include-system-site-packages is not converted to a boolean
-    nor lowerased).
+    the values (e.g., ``include-system-site-packages`` is not converted to a
+    boolean, nor lowercased).
 
-    Parsing is done in a way identical to how the 'site' modules does it. This
-    means that ANY line with an ``=`` sign is considered a line with a key/value
-    pair on it. As such, all other lines are treated as if they are comments.
-    But this also means that having a line start with e.g., ``#`` does not
-    signify a comment either if there is a ``=`` in the line.
+    Parsing is done in a way identical to how the :py:mod:`site` module does it.
+    This means that ANY line with an ``=`` sign is considered a line with a
+    key/value pair on it. As such, all other lines are treated as if they are
+    comments. But this also means that having a line start with e.g., ``#`` does
+    not signify a comment either if there is a ``=`` in the line.
     """
     config = {}
     venv_path = pathlib.Path(env_dir)
@@ -59,13 +60,14 @@ def activation(env_vars=os.environ):
     """Returns a dict with env vars to activate the current virtual environment.
 
     If the current interpreter is not from a virtual environment,
-    ActivationError is raised.
+    :exc:`ActivationError` is raised.
 
     Since this API is designed to be additive to a environment variables dict
     (i.e., ``os.environ | activation()``), key deletions are not supported. As
-    such, ActivationError is raised if PYTHONHOME is found to be set.
+    such, :exc:`ActivationError` is raised if ``PYTHONHOME`` is found to be set.
 
-    No environment variables are provided in relation to shell prompts.
+    No environment variables are provided in the returned dict in relation to
+    shell prompts.
     """
     if not IN_VIRTUAL_ENV:
         raise ActivationError("Not running from a virtual environment")
