@@ -1,4 +1,9 @@
-"""A minimal, self-contained implementation of `venv`."""
+"""A minimal, self-contained implementation of `venv`.
+
+Because this module is self-contained from the rest of the package, you can
+execute this module directly. It has its own CLI (which can be explored via
+`--help`).
+"""
 import argparse
 import os
 import pathlib
