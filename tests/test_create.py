@@ -8,6 +8,9 @@ import pytest
 import microvenv
 import microvenv._create
 
+if sys.platform == "win32":
+    pytest.skip("Windows is not supported.", allow_module_level=True)
+
 
 @pytest.fixture
 def base_executable():
