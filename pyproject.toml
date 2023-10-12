@@ -5,8 +5,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "microvenv"
-version = "2023.3"
-description = "A minimal re-implementation of Python's venv module"
+version = "2023.3.post1"
+description = "A minimal re-implementation of Python's venv module plus utilities"
 keywords = ["virtual environments", "venv"]
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -19,9 +19,7 @@ classifiers = [
   "Intended Audience :: Developers",
   "Topic :: Software Development",
   "Topic :: Utilities",
-  "Natural Language :: English",
-  "Operating System :: MacOS :: MacOS X",
-  "Operating System :: POSIX",
+  "Natural Language :: English"
 ]
 
 [project.optional-dependencies]
@@ -30,6 +28,7 @@ test = ["pytest"]
 lint = ["black", "mypy", "ruff"]
 
 [project.urls]
+Documentation = "https://microvenv.readthedocs.io/"
 Changelog = "https://github.com/brettcannon/microvenv/releases"
 Source = "https://github.com/brettcannon/microvenv"
 
