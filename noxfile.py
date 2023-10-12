@@ -16,6 +16,7 @@ def lint(session):
     session.run("ruff", "check", ".")
     session.run("black", "--check", ".")
     session.run("mypy", ".")
+    session.run("stubtest", "microvenv")
 
 
 @nox.session
