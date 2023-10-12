@@ -25,3 +25,5 @@ API
 
     Analogous to calling :py:func:`venv.create` as
     ``venv.create(..., symlinks=True, with_pip=False)``.
+
+    .. note:: Not available on Windows.

@@ -1,9 +1,13 @@
 import os
 import subprocess
+import sys
 
 import pytest
 
 import microvenv
+
+if sys.platform == "win32":
+    pytest.skip("Windows is not supported.", allow_module_level=True)
 
 
 @pytest.fixture

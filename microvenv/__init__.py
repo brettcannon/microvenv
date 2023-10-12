@@ -4,7 +4,9 @@ import sys
 
 # Exported as part of the public API.
 from ._create import DEFAULT_ENV_DIR as DEFAULT_ENV_DIR
-from ._create import create as create
+
+if sys.platform != "win32":
+    from ._create import create as create
 
 # https://docs.python.org/3/library/venv.html#how-venvs-work
 IN_VIRTUAL_ENV = sys.prefix != sys.base_prefix

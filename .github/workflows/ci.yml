@@ -7,12 +7,15 @@ jobs:
     runs-on: ${{ matrix.os }}-latest
     strategy:
       matrix:
-        os: ["ubuntu", "macos"]
+        os: ["ubuntu", "macos", "windows"]
+        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11", "3.12"]
 
     steps:
       - uses: actions/checkout@v3
-      - uses: wntrblm/nox@main
-      - run: nox -s test
+      - uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: pipx run nox -s test-${{ matrix.python-version }}
 
   # Set up as a separate job for a very small amount of parallelism and to
   # avoid running multiple times under each OS like we do for testing.
