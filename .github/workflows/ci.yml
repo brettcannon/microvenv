@@ -8,7 +8,7 @@ jobs:
     strategy:
       matrix:
         os: ["ubuntu", "macos", "windows"]
-        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11", "3.12"]
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
 
     steps:
       - uses: actions/checkout@v3
@@ -20,7 +20,10 @@ jobs:
   # Set up as a separate job for a very small amount of parallelism and to
   # avoid running multiple times under each OS like we do for testing.
   lint:
-    runs-on: "ubuntu-latest"
+    runs-on: ${{ matrix.os }}-latest
+    strategy:
+      matrix:
+        os: ["ubuntu", "windows"]  # Due to having different APIs.
 
     steps:
       - uses: actions/checkout@v3
