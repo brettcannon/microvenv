@@ -13,7 +13,7 @@ There is also utility code around virtual environments. See the [docs](https://m
 **NOTE**: The CLI is not available on Windows.
 
 ```console
-python microvenv.py [--without-scm-ignore-files] [env_dir=".venv"]
+python -m microvenv [--without-scm-ignore-files] [env_dir=".venv"]
 ```
 
 If an argument is provided to the script, it is used as the path to create the virtual environment in. Otherwise, the virtual environment is created in `.venv`.
