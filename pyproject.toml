@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "microvenv"
-version = "2023.5"
+version = "2023.5.post1"
 description = "A minimal re-implementation of Python's venv module plus utilities"
 keywords = ["virtual environments", "venv"]
 readme = "README.md"
