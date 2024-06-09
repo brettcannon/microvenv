@@ -31,6 +31,7 @@ lint = ["black", "mypy", "ruff"]
 Documentation = "https://microvenv.readthedocs.io/"
 Changelog = "https://github.com/brettcannon/microvenv/releases"
 Source = "https://github.com/brettcannon/microvenv"
+"Fiscal support" = "https://github.com/sponsors/brettcannon/"
 
 
 [tool.mypy]
