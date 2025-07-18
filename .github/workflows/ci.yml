@@ -8,13 +8,14 @@ jobs:
     strategy:
       matrix:
         os: ["ubuntu", "macos", "windows"]
-        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
 
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
+          allow-prereleases: true
       - run: pipx run nox -s test-${{ matrix.python-version }}
 
   # Set up as a separate job for a very small amount of parallelism and to
