@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "microvenv"
-version = "2023.5.post1"
+version = "2025.0"
 description = "A minimal re-implementation of Python's venv module plus utilities"
 keywords = ["virtual environments", "venv"]
 readme = "README.md"
@@ -14,7 +14,7 @@ maintainers = [{ name = "Brett Cannon", email = "brett@python.org" }]
 authors = [{ name = "Brett Cannon", email = "brett@python.org" }]
 requires-python = ">=3.8"
 classifiers = [
-  "Development Status :: 4 - Beta",
+  "Development Status :: 5 - Production/Stable",
   "License :: OSI Approved :: MIT License",
   "Intended Audience :: Developers",
   "Topic :: Software Development",
