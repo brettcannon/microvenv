@@ -4,6 +4,7 @@ Because this module is self-contained from the rest of the package, you can
 execute this module directly. It has its own CLI (which can be explored via
 `--help`).
 """
+
 import argparse
 import os
 import pathlib
@@ -17,7 +18,7 @@ _BASE_EXECUTABLE = pathlib.Path(getattr(sys, "_base_executable", sys.executable)
 _PYVENVCFG_TEMPLATE = f"""\
 home = {_BASE_EXECUTABLE.parent}
 include-system-site-packages = false
-version = {'.'.join(map(str, sys.version_info[:3]))}
+version = {".".join(map(str, sys.version_info[:3]))}
 executable = {_BASE_EXECUTABLE.resolve()}
 command = {{command}}
 """
@@ -69,11 +70,15 @@ def create(env_dir=DEFAULT_ENV_DIR, *, scm_ignore_files=frozenset(["git"])):
         if lib_path.is_dir() and not lib64_path.exists():
             lib64_path.symlink_to("lib", target_is_directory=True)
 
-    for executable_name in (
+    executable_names = [
         "python",
         f"python{sys.version_info.major}",
         f"python{sys.version_info.major}.{sys.version_info.minor}",
-    ):
+    ]
+    if sys.version_info[:2] == (3, 14):
+        executable_names.append("𝜋thon")
+
+    for executable_name in executable_names:
         (scripts_dir / executable_name).symlink_to(_BASE_EXECUTABLE)
 
     if __spec__ is None:
@@ -114,8 +119,7 @@ def main():
         default=DEFAULT_ENV_DIR,
         nargs="?",
         help=(
-            "Directory to create virtual environment in "
-            f"(default: {DEFAULT_ENV_DIR!r}"
+            f"Directory to create virtual environment in (default: {DEFAULT_ENV_DIR!r}"
         ),
     )
     args = parser.parse_args()
