@@ -4,6 +4,7 @@ Because this module is self-contained from the rest of the package, you can
 execute this module directly. It has its own CLI (which can be explored via
 `--help`).
 """
+
 import argparse
 import os
 import pathlib
@@ -17,7 +18,7 @@ _BASE_EXECUTABLE = pathlib.Path(getattr(sys, "_base_executable", sys.executable)
 _PYVENVCFG_TEMPLATE = f"""\
 home = {_BASE_EXECUTABLE.parent}
 include-system-site-packages = false
-version = {'.'.join(map(str, sys.version_info[:3]))}
+version = {".".join(map(str, sys.version_info[:3]))}
 executable = {_BASE_EXECUTABLE.resolve()}
 command = {{command}}
 """
@@ -118,8 +119,7 @@ def main():
         default=DEFAULT_ENV_DIR,
         nargs="?",
         help=(
-            "Directory to create virtual environment in "
-            f"(default: {DEFAULT_ENV_DIR!r}"
+            f"Directory to create virtual environment in (default: {DEFAULT_ENV_DIR!r}"
         ),
     )
     args = parser.parse_args()
